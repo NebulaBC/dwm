@@ -2,8 +2,12 @@
 
 /* appearance */
 static const unsigned int borderpx  = 4;        /* border pixel of windows */
-static const unsigned int gappx     = 8;        /* gap pixel between windows */
 static const unsigned int snap      = 32;       /* snap pixel */
+static const unsigned int gappih    = 20;       /* horiz inner gap between windows */
+static const unsigned int gappiv    = 10;       /* vert inner gap between windows */
+static const unsigned int gappoh    = 10;       /* horiz outer gap between windows and screen edge */
+static const unsigned int gappov    = 30;       /* vert outer gap between windows and screen edge */
+static       int smartgaps          = 0;        /* 1 means no outer gap when there is only one window */
 static const unsigned int systraypinning = 0;   /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
 static const unsigned int systrayonleft = 0;           /* 0: systray in the right corner, >0: systray on left of status text */
 static const unsigned int systrayspacing = 2;   /* systray spacing */
@@ -18,11 +22,19 @@ static const char col_gray2[]       = "#ffb86c";
 static const char col_gray3[]       = "#ff79c6";
 static const char col_gray4[]       = "#ffb86c";
 static const char col_cyan[]        = "#282a36";
+static const unsigned int baralpha = 220;
+static const unsigned int borderalpha = 220;
 static const char *colors[][3]      = {
     /*               fg         bg         border   */
     [SchemeNorm] = { col_gray3, col_gray1, col_cyan },
     [SchemeSel]  = { col_gray4, col_cyan,  col_gray2  },
 };
+static const unsigned int alphas[][3]      = {
+       /*               fg      bg        border     */
+       [SchemeNorm] = { OPAQUE, baralpha, borderalpha },
+       [SchemeSel]  = { OPAQUE, baralpha, borderalpha },
+};
+
 
 /* tagging */
 static const char *tags[] = { "", "", "ﭮ", "", "﬏", "", "", "", "" };
@@ -43,11 +55,26 @@ static const int nmaster     = 1;    /* number of clients in master area */
 static const int resizehints = 1;    /* 1 means respect size hints in tiled resizals */
 static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen window */
 
+#define FORCE_VSPLIT 1  /* nrowgrid layout: force two clients to always split vertically */
+#include "vanitygaps.c"
+
 static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "[]=",      tile },    /* first entry is default */
-	{ "><>",      NULL },    /* no layout function means floating behavior */
 	{ "[M]",      monocle },
+	{ "[@]",      spiral },
+	{ "[\\]",     dwindle },
+	{ "H[]",      deck },
+	{ "TTT",      bstack },
+	{ "===",      bstackhoriz },
+	{ "HHH",      grid },
+	{ "###",      nrowgrid },
+	{ "---",      horizgrid },
+	{ ":::",      gaplessgrid },
+	{ "|M|",      centeredmaster },
+	{ ">M>",      centeredfloatingmaster },
+	{ "><>",      NULL },    /* no layout function means floating behavior */
+	{ NULL,       NULL },
 };
 
 /* key definitions */
@@ -80,6 +107,23 @@ static Key keys[] = {
 	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },
 	{ MODKEY,                       XK_l,      setmfact,       {.f = +0.05} },
 	{ MODKEY|ShiftMask,                       XK_Return, zoom,           {0} },
+/*	{ MODKEY|Mod4Mask,              XK_u,      incrgaps,       {.i = +1 } },
+        { MODKEY|Mod4Mask|ShiftMask,    XK_u,      incrgaps,       {.i = -1 } },
+        { MODKEY|Mod4Mask,              XK_i,      incrigaps,      {.i = +1 } },
+        { MODKEY|Mod4Mask|ShiftMask,    XK_i,      incrigaps,      {.i = -1 } },
+        { MODKEY|Mod4Mask,              XK_o,      incrogaps,      {.i = +1 } },
+        { MODKEY|Mod4Mask|ShiftMask,    XK_o,      incrogaps,      {.i = -1 } },
+        { MODKEY|Mod4Mask,              XK_6,      incrihgaps,     {.i = +1 } },
+        { MODKEY|Mod4Mask|ShiftMask,    XK_6,      incrihgaps,     {.i = -1 } },
+        { MODKEY|Mod4Mask,              XK_7,      incrivgaps,     {.i = +1 } },
+        { MODKEY|Mod4Mask|ShiftMask,    XK_7,      incrivgaps,     {.i = -1 } },
+        { MODKEY|Mod4Mask,              XK_8,      incrohgaps,     {.i = +1 } },
+        { MODKEY|Mod4Mask|ShiftMask,    XK_8,      incrohgaps,     {.i = -1 } },
+        { MODKEY|Mod4Mask,              XK_9,      incrovgaps,     {.i = +1 } },
+        { MODKEY|Mod4Mask|ShiftMask,    XK_9,      incrovgaps,     {.i = -1 } },
+        { MODKEY|Mod4Mask,              XK_0,      togglegaps,     {0} },
+        { MODKEY|Mod4Mask|ShiftMask,    XK_0,      defaultgaps,    {0} }, */
+
 	{ MODKEY,                       XK_Tab,    view,           {0} },
 	{ MODKEY,                       XK_c,      killclient,     {0} },
 	/*{ MODKEY,                       XK_t,      setlayout,      {.v = &layouts[0]} },
